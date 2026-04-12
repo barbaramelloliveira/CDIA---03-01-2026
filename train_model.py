@@ -1,8 +1,10 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-
 from gerar_dataset import gerar_dataset
+import joblib
+import numpy as np 
+import os
 
 # 1. Gerar dados
 df, X, y = gerar_dataset(n_samples=2000, seed=42)
@@ -24,3 +26,21 @@ y_pred = model.predict(X_test)
 
 # 5. Avaliação
 print(classification_report(y_test, y_pred))
+
+joblib.dump(model, "model.pkl")
+print ("Modelo salvo em model.pkl")
+
+model_carregado = joblib.load("model.pkl")
+
+amostra = X_test[:5]
+
+pred_original  = model.predict(amostra)
+pred_carregado = model_carregado.predict(amostra)
+
+assert np.array_equal(pred_original, pred_carregado), "Predições divergem!"
+
+print("✅ Artefato validado — predições idênticas")
+print(f"Predições: {pred_original}")
+
+tamanho = os.path.getsize("model.pkl")
+print(f"Tamanho do modelo: {tamanho / 1024:.2f} KB")
